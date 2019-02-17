@@ -1,0 +1,78 @@
+Sub hw2():
+' remarks
+'   marked with double quotes is for testing / validation only
+
+' variables
+    Dim ws As Worksheet 'Worksheet
+    Dim SummaryIndex As Integer 'Index for summary display
+    Dim LastRow As Double 'last row on row iteration to be reused per sheet
+    Dim TickerOpen As Double
+    Dim TickerClose As Double
+    
+' initialization
+    
+' functionality
+    For Each ws In Worksheets 'do for each worksheet
+        ' sheet initialization
+        SummaryIndex = 2 'initialize for each worksheet
+        LastRow = 100000 'ws.Cells(Rows.Count, 1).End(xlUp).Row
+        ws.Range("I1:L" & LastRow) = ""
+        ws.Cells(2, 17).Value = 0
+        ws.Cells(3, 17).Value = 0
+        ws.Cells(4, 17).Value = 0
+        ' sheet functionality
+        For i = 2 To LastRow 'run all the way down
+            If ws.Cells(i - 1, 1).Value <> ws.Cells(i, 1).Value Then 'new ticker
+                TickerOpen = ws.Cells(i, 3).Value
+            End If
+            If ws.Cells(i, 1).Value <> ws.Cells(i + 1, 1).Value Then 'next line will change ticker
+                TickerClose = ws.Cells(i, 6).Value
+                ws.Cells(SummaryIndex, 9).Value = ws.Cells(i, 1).Value 'ticker
+                ws.Cells(SummaryIndex, 10).Value = TickerClose - TickerOpen 'yearly change
+                If ws.Cells(SummaryIndex, 10).Value >= 0 Then
+                    ws.Cells(SummaryIndex, 10).Interior.ColorIndex = 4 'green
+                Else    'next line is same ticker
+                    ws.Cells(SummaryIndex, 10).Interior.ColorIndex = 3 'red
+                End If
+                ws.Cells(SummaryIndex, 11).Value = (TickerClose / TickerOpen) - 1 'percent change
+                'Greatest % Increase
+                If ws.Cells(SummaryIndex, 11).Value > ws.Cells(2, 17).Value Then
+                    ws.Cells(2, 16).Value = ws.Cells(SummaryIndex, 9).Value 'ticker
+                    ws.Cells(2, 17).Value = ws.Cells(SummaryIndex, 11).Value 'percentage
+                End If
+                'Greatest % Decrease
+                If ws.Cells(SummaryIndex, 11).Value < ws.Cells(3, 17).Value Then
+                    ws.Cells(3, 16).Value = ws.Cells(SummaryIndex, 9).Value 'ticker
+                    ws.Cells(3, 17).Value = ws.Cells(SummaryIndex, 11).Value 'percentage
+                End If
+''                ws.Cells(SummaryIndex, 25).Value = TickerOpen
+''                ws.Cells(SummaryIndex, 26).Value = TickerClose
+                ws.Cells(SummaryIndex, 12).Value = ws.Cells(i, 7).Value + ws.Cells(SummaryIndex, 12) 'add volume
+                'Greatest Total Volume
+                If ws.Cells(SummaryIndex, 12).Value > ws.Cells(4, 17).Value Then
+                    ws.Cells(4, 16).Value = ws.Cells(SummaryIndex, 9).Value 'ticker
+                    ws.Cells(4, 17).Value = ws.Cells(SummaryIndex, 12).Value 'volume
+                End If
+                SummaryIndex = SummaryIndex + 1
+            Else
+                ws.Cells(SummaryIndex, 12).Value = ws.Cells(i, 7).Value + ws.Cells(SummaryIndex, 12) 'add volume
+            End If
+        Next i
+        ' set headers / text
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 10).Value = "Yearly Change"
+        ws.Cells(1, 11).Value = "Percent Change"
+        ws.Cells(1, 12).Value = "Total Stock Volume"
+        ws.Cells(1, 16).Value = "Ticker"
+        ws.Cells(1, 17).Value = "Value"
+        ws.Cells(2, 15).Value = "Greatest % Increase"
+        ws.Cells(3, 15).Value = "Greatest % Decrease"
+        ws.Cells(4, 15).Value = "Greatest Total Volume"
+        ' format columns
+        ws.Range("K1:K" & LastRow).NumberFormat = "0.00%" 'set to percentage format
+        ws.Range("Q2:Q2").NumberFormat = "0.00%" 'set to percentage format
+        ws.Range("Q3:Q3").NumberFormat = "0.00%" 'set to percentage format
+        ws.Range("O:Q").Columns.AutoFit 'autofit second summary text column
+    Next ws
+
+End Sub
