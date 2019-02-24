@@ -15,7 +15,7 @@ Sub hw2():
     For Each ws In Worksheets 'do for each worksheet
         ' sheet initialization
         SummaryIndex = 2 'initialize for each worksheet
-        LastRow = 100000 'ws.Cells(Rows.Count, 1).End(xlUp).Row
+        LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
         ws.Range("I1:L" & LastRow) = ""
         ws.Cells(2, 17).Value = 0
         ws.Cells(3, 17).Value = 0
